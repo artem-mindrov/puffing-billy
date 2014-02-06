@@ -1,5 +1,5 @@
 require 'resolv'
-require 'uri'
+require 'addressable/uri'
 require 'yaml'
 require 'billy/json_utils'
 
@@ -13,7 +13,7 @@ module Billy
 
     def cacheable?(url, headers)
       if Billy.config.cache
-        url = URI(url)
+        url = Addressable::URI.parse(url)
         # Cache the responses if they aren't whitelisted host[:port]s but always cache blacklisted paths on any hosts
         !whitelisted_host?(url.host) && !whitelisted_host?("#{url.host}:#{url.port}") || blacklisted_path?(url.path)
         # TODO test headers for cacheability
@@ -83,7 +83,7 @@ module Billy
 
     def key(method, url, body)
       ignore_params = Billy.config.ignore_params.include?(format_url(url, true))
-      url = URI(format_url(url, ignore_params))
+      url = Addressable::URI.parse(format_url(url, ignore_params))
       key = method+'_'+url.host+'_'+Digest::SHA1.hexdigest(scope.to_s + url.to_s)
 
       if method == 'post' and !ignore_params
@@ -95,7 +95,7 @@ module Billy
     end
 
     def format_url(url, ignore_params=false)
-      url = URI(url)
+      url = Addressable::URI.parse(url)
       port_to_include = Billy.config.ignore_cache_port ? '' : ":#{url.port}"
       formatted_url = url.scheme+'://'+url.host+port_to_include+url.path
       unless ignore_params

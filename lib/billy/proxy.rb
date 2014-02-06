@@ -1,5 +1,5 @@
 require 'cgi'
-require 'uri'
+require 'addressable/uri'
 require 'eventmachine'
 
 module Billy
@@ -35,7 +35,7 @@ module Billy
     def call(method, url, headers, body)
       stub = find_stub(method, url)
       unless stub.nil?
-        query_string = URI.parse(url).query || ""
+        query_string = Addressable::URI.parse(url).query || ""
         params = CGI.parse(query_string)
         stub.call(params, headers, body)
       end
